@@ -1,3 +1,10 @@
+DISABLE_OLED = False
+if(DISABLE_OLED == False):
+    import oled
+    oled.init()
+import time
+startTime = time.monotonic_ns()
+
 import usb_hid
 from rgbkeypad import RGBKeypad
 from adafruit_hid.keyboard import Keyboard
@@ -27,25 +34,25 @@ KEYBOARD_MAP = {
 }
 
 KEY_COLOR_MAP = {
-    (0,0): {"color" : (200,0,0), "name" : "start"},
-    (1,0): {"color" : (0,0,200), "name" : "stop"},
-    (2,0): {"color" : (0,0,0), "name" : "n/a"},
-    (3,0): {"color" : (0,0,0), "name" : "n/a"},
+    (0,0): {"color" : (200,0,0), "name" : "START Streaming", "confirm" : "yes"},
+    (1,0): {"color" : (0,0,200), "name" : "STOP Streaming", "confirm" : "yes"},
+    (2,0): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
+    (3,0): {"color" : (0,10,0), "name" : "n/a", "confirm" : "no"},
     
-    (0,1): {"color" : (0,0,0), "name" : "n/a"},
-    (1,1): {"color" : (0,0,0), "name" : "n/a"},
-    (2,1): {"color" : (0,0,0), "name" : "n/a"},
-    (3,1): {"color" : (0,0,0), "name" : "n/a"},
+    (0,1): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
+    (1,1): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
+    (2,1): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
+    (3,1): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
 
-    (0,2): {"color" : (0,200,0), "name" : "Camera"},
-    (1,2): {"color" : (0,0,0), "name" : "n/a"},
-    (2,2): {"color" : (0,0,0), "name" : "n/a"},
-    (3,2): {"color" : (0,0,0), "name" : "n/a"},
+    (0,2): {"color" : (0,200,0), "name" : "Camera", "confirm" : "no"},
+    (1,2): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
+    (2,2): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
+    (3,2): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
 
-    (0,3): {"color" : (245,120,10), "name" : "Screen + Camera Top Right"},
-    (1,3): {"color" : (245,120,10), "name" : "Screen + Camera Top Right"},
-    (2,3): {"color" : (0,0,0), "name" : "n/a"},
-    (3,3): {"color" : (0,100,100), "name" : "Screen Only"}
+    (0,3): {"color" : (245,120,10), "name" : "Screen + Camera Top", "confirm" : "yes"},
+    (1,3): {"color" : (245,120,10), "name" : "Screen + Camera Down", "confirm" : "no"},
+    (2,3): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
+    (3,3): {"color" : (0,100,100), "name" : "Screen Only", "confirm" : "no"}
 }
 
 
@@ -62,24 +69,94 @@ def resetBrightness():
 def dimmBrightness():
     for key in keypad.keys:
         key.brightness = 0 # off the led
-    
+    if(DISABLE_OLED == False):
+        oled.setMmessage(" ")
+
+def showMessage(text):
+    global startTime
+    if(DISABLE_OLED == False):
+        oled.setMmessage(text)
+        startTime = time.monotonic_ns()
+
+def showConfirmMessage(text):
+    global startTime
+    if(DISABLE_OLED == False):
+        oled.setConfirmMmessage(text)
+        startTime = time.monotonic_ns()
+
 for key in keypad.keys:
     if (key.x, key.y) in KEY_COLOR_MAP.keys():
         key.color = KEY_COLOR_MAP[(key.x, key.y)]["color"]
     key.brightness = DEFAULT_BRIGHTNESS
+    
+def confirm(confirmKey, currentKey):
+
+    showConfirmMessage(KEY_COLOR_MAP[confirmKey]["name"])
+    
+    # wait for 0.2 sec to avoid mis-click
+    time.sleep(0.2)
+
+    global startTime
+    keyBrightnessAdjustment = 0.03
+    while True:
+        currentKey.brightness = currentKey.brightness + keyBrightnessAdjustment
+        if(currentKey.brightness > 0.7):
+            keyBrightnessAdjustment = -0.03
+        if(currentKey.brightness < 0.2):
+            keyBrightnessAdjustment = 0.03
+
+        ms_duration = round((time.monotonic_ns() - startTime) / 1e6, 1)
+            
+        if(ms_duration > 10000): # 10 sec
+            # not confirmed within 10 seconds
+            showMessage("Cancelled")
+            currentKey.brightness = DEFAULT_BRIGHTNESS
+            return
+
+        for key in keypad.keys:
+            if key.is_pressed():
+                #3resetBrightness();
+                
+                if((key.x, key.y)  == confirmKey):
+                    showMessage(KEY_COLOR_MAP[confirmKey]["name"])
+                    key.brightness = 0.35
+                    kbd.send(*KEYBOARD_MAP[(key.x, key.y)])
+                else:
+                    # cancel with any other keys
+                    showMessage("Cancelled")
+                    currentKey.brightness = DEFAULT_BRIGHTNESS
+                    
+                while key.is_pressed():
+                    pass
+                return
 
 
 while True:
+
+    if(DISABLE_OLED == False):
+        ms_duration = round((time.monotonic_ns() - startTime) / 1e6, 1)
+        if(ms_duration > 30000): # 30 sec
+            oled.sleep()
+        
+
     for key in keypad.keys:
         if key.is_pressed():
             resetBrightness();
-            key.brightness = 0.5
+            key.brightness = 0.35
             
             if (key.x, key.y) in KEYBOARD_MAP.keys():
-                kbd.send(*KEYBOARD_MAP[(key.x, key.y)]) 
+                if(KEY_COLOR_MAP[(key.x, key.y)]["confirm"] == "yes"):
+                    confirm((key.x, key.y), key)
+                    break
+                else:
+                    kbd.send(*KEYBOARD_MAP[(key.x, key.y)])
+                    showMessage(KEY_COLOR_MAP[(key.x, key.y)]["name"])
+
             else:
                 key.color = (255,255,255)
                 dimmBrightness()
             
             while key.is_pressed():
                 pass
+
+
