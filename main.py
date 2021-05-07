@@ -10,6 +10,7 @@ from rgbkeypad import RGBKeypad
 from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.keycode import Keycode
 from random import randint
+import math
 
 KEYBOARD_MAP = {
     (0,0): (Keycode.LEFT_CONTROL, Keycode.KEYPAD_ONE,),   # 0
@@ -64,13 +65,16 @@ kbd = Keyboard(usb_hid.devices)
 
 def resetBrightness():
     for key in keypad.keys:
+        if (key.x, key.y) in KEY_COLOR_MAP.keys():
+            key.color = KEY_COLOR_MAP[(key.x, key.y)]["color"]
         key.brightness = DEFAULT_BRIGHTNESS
         
 def dimmBrightness():
-    for key in keypad.keys:
-        key.brightness = 0 # off the led
+    #for key in keypad.keys:
+    #    key.brightness = 0 # off the led
     if(DISABLE_OLED == False):
         oled.setMmessage(" ")
+    partyNight()
 
 def showMessage(text):
     global startTime
@@ -83,11 +87,45 @@ def showConfirmMessage(text):
     if(DISABLE_OLED == False):
         oled.setConfirmMmessage(text)
         startTime = time.monotonic_ns()
+    
+def partyNight():
+    targetColors = []     # color array
+    for key in keypad.keys:
+        key.color = (randint(0,255), randint(0,255), randint(0,255))
+        key.brightness = DEFAULT_BRIGHTNESS
+        targetColors.append(key.color)
+    
+    while True:
+        # change each
+        i = randint(0,15)
+        for key in keypad.keys:
+            if key.is_pressed():
+                # any key to exit par2ty mode
+                return
+        while True:
+            if(
+                (keypad.keys[i].color[0] == targetColors[i][0]) and
+                (keypad.keys[i].color[1] == targetColors[i][1]) and
+                (keypad.keys[i].color[2] == targetColors[i][2])):
+                targetColors[i] = (randint(0,255), randint(0,255), randint(0,255))
+                break
+            else:
+                keypad.keys[i].color = (
+                    gradationAmount(keypad.keys[i].color[0], targetColors[i][0]), # R
+                    gradationAmount(keypad.keys[i].color[1], targetColors[i][1]), # G
+                    gradationAmount(keypad.keys[i].color[2], targetColors[i][2])) # B
 
-for key in keypad.keys:
-    if (key.x, key.y) in KEY_COLOR_MAP.keys():
-        key.color = KEY_COLOR_MAP[(key.x, key.y)]["color"]
-    key.brightness = DEFAULT_BRIGHTNESS
+
+def gradationAmount(current, tobe):
+    if(current == tobe):
+        return current
+    elif(current > tobe):
+        diff = current - tobe
+        return current - math.ceil(diff / 15.0)
+    else:
+        diff = tobe - current
+        return current + math.ceil(diff / 15.0)
+
     
 def confirm(confirmKey, currentKey):
 
@@ -130,33 +168,36 @@ def confirm(confirmKey, currentKey):
                     pass
                 return
 
+def main():
+    while True:
 
-while True:
-
-    if(DISABLE_OLED == False):
-        ms_duration = round((time.monotonic_ns() - startTime) / 1e6, 1)
-        if(ms_duration > 30000): # 30 sec
-            oled.sleep()
-        
-
-    for key in keypad.keys:
-        if key.is_pressed():
-            resetBrightness();
-            key.brightness = 0.35
+        if(DISABLE_OLED == False):
+            ms_duration = round((time.monotonic_ns() - startTime) / 1e6, 1)
+            if(ms_duration > 30000): # 30 sec
+                oled.sleep()
             
-            if (key.x, key.y) in KEYBOARD_MAP.keys():
-                if(KEY_COLOR_MAP[(key.x, key.y)]["confirm"] == "yes"):
-                    confirm((key.x, key.y), key)
-                    break
+
+        for key in keypad.keys:
+            if key.is_pressed():
+                resetBrightness();
+                key.brightness = 0.35
+                
+                if (key.x, key.y) in KEYBOARD_MAP.keys():
+                    if(KEY_COLOR_MAP[(key.x, key.y)]["confirm"] == "yes"):
+                        confirm((key.x, key.y), key)
+                        break
+                    else:
+                        kbd.send(*KEYBOARD_MAP[(key.x, key.y)])
+                        showMessage(KEY_COLOR_MAP[(key.x, key.y)]["name"])
+
                 else:
-                    kbd.send(*KEYBOARD_MAP[(key.x, key.y)])
-                    showMessage(KEY_COLOR_MAP[(key.x, key.y)]["name"])
+                    key.color = (255,255,255)
+                    dimmBrightness()
+                    resetBrightness()
+                    break
+                
+                while key.is_pressed():
+                    pass
 
-            else:
-                key.color = (255,255,255)
-                dimmBrightness()
-            
-            while key.is_pressed():
-                pass
-
-
+resetBrightness()
+main()
