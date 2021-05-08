@@ -90,41 +90,64 @@ def showConfirmMessage(text):
     
 def partyNight():
     targetColors = []     # color array
+    minRVal = randint(1,200)
+    minGVal = randint(1,200)
+    minBVal = randint(1,200)
+    showMessage(str(minRVal) + ", " + str(minGVal) + ", " + str(minBVal))
     for key in keypad.keys:
-        key.color = (randint(0,255), randint(0,255), randint(0,255))
+        key.color = (randint(minRVal,255), randint(minGVal,255), randint(minBVal,255))
         key.brightness = DEFAULT_BRIGHTNESS
         targetColors.append(key.color)
     
     while True:
-        # change each
-        i = randint(0,15)
-        for key in keypad.keys:
-            if key.is_pressed():
-                # any key to exit par2ty mode
-                return
-        while True:
-            if(
-                (keypad.keys[i].color[0] == targetColors[i][0]) and
-                (keypad.keys[i].color[1] == targetColors[i][1]) and
-                (keypad.keys[i].color[2] == targetColors[i][2])):
-                targetColors[i] = (randint(0,255), randint(0,255), randint(0,255))
-                break
-            else:
-                keypad.keys[i].color = (
-                    gradationAmount(keypad.keys[i].color[0], targetColors[i][0]), # R
-                    gradationAmount(keypad.keys[i].color[1], targetColors[i][1]), # G
-                    gradationAmount(keypad.keys[i].color[2], targetColors[i][2])) # B
+        if(randint(0, 50) == 39):
+            minRVal = randint(1,200)
+            minGVal = randint(1,200)
+            minBVal = randint(1,200)
+            showMessage(str(minRVal) + ", " + str(minGVal) + ", " + str(minBVal))
 
+        # change each
+        changeKeys = []
+        for i in range(randint(1,5)):
+            # this could be duplicated - 2x or more speedy change.
+            changeKeys.append(randint(0,15))
+
+        while True:
+            for i in changeKeys:
+                for key in keypad.keys:
+                    if key.is_pressed():
+                        # any key to exit party mode
+                        return
+
+                if(gradationLED(keypad.keys[i], targetColors[i])):
+                    targetColors[i] = (randint(minRVal,255), randint(minGVal,255), randint(minBVal,255))
+                    break
+            else:
+                continue
+            break
+            
+def gradationLED(key, tobe):
+    if(
+        (key.color[0] == tobe[0]) and
+        (key.color[1] == tobe[1]) and
+        (key.color[2] == tobe[2])):
+        return True
+    
+    key.color = (
+        gradationAmount(key.color[0], tobe[0]), # R
+        gradationAmount(key.color[1], tobe[1]), # G
+        gradationAmount(key.color[2], tobe[2])) # B
+    return False
 
 def gradationAmount(current, tobe):
     if(current == tobe):
         return current
     elif(current > tobe):
         diff = current - tobe
-        return current - math.ceil(diff / 15.0)
+        return current - math.ceil(diff / 10.0)
     else:
         diff = tobe - current
-        return current + math.ceil(diff / 15.0)
+        return current + math.ceil(diff / 10.0)
 
     
 def confirm(confirmKey, currentKey):
@@ -198,6 +221,10 @@ def main():
                 
                 while key.is_pressed():
                     pass
+while True:
+    try:
+        resetBrightness()
+        main()
+    except:
+        print("An exception occurred")
 
-resetBrightness()
-main()
