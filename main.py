@@ -93,7 +93,6 @@ def partyNight():
     minRVal = randint(1,200)
     minGVal = randint(1,200)
     minBVal = randint(1,200)
-    showMessage(str(minRVal) + ", " + str(minGVal) + ", " + str(minBVal))
     for key in keypad.keys:
         key.color = (randint(minRVal,255), randint(minGVal,255), randint(minBVal,255))
         key.brightness = DEFAULT_BRIGHTNESS
@@ -104,7 +103,6 @@ def partyNight():
             minRVal = randint(1,200)
             minGVal = randint(1,200)
             minBVal = randint(1,200)
-            showMessage(str(minRVal) + ", " + str(minGVal) + ", " + str(minBVal))
 
         # change each
         changeKeys = []
@@ -225,6 +223,9 @@ while True:
     try:
         resetBrightness()
         main()
-    except:
-        print("An exception occurred")
-
+    except KeyboardInterrupt:
+        print("KeyboardInterrupt :)")
+        break
+#    except:
+#        # ignore any other errors.
+#        print("An exception occurred")
