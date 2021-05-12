@@ -1,7 +1,11 @@
 DISABLE_OLED = False
 if(DISABLE_OLED == False):
-    import oled
-    oled.init()
+    try:
+        import oled
+        oled.init()
+    except:
+        print("OLED not available to use.")
+        DISABLE_OLED = True
 import time
 startTime = time.monotonic_ns()
 
@@ -12,61 +16,42 @@ from adafruit_hid.keycode import Keycode
 from random import randint
 import math
 
+
+# set name for "n/a" is not assigned.(trigger the party night)
+# name : display name
 KEYBOARD_MAP = {
-    (0,0): (Keycode.LEFT_CONTROL, Keycode.KEYPAD_ONE,),   # 0
-    (1,0): (Keycode.LEFT_CONTROL, Keycode.KEYPAD_TWO,),   # 1
-    (2,0): (Keycode.LEFT_CONTROL, Keycode.KEYPAD_THREE,), # 2
-    #(3,0): (Keycode.LEFT_CONTROL, Keycode.KEYPAD_FOUR,),  # 3
+    (0,0): {"color" : (200,  0,  0), "name" : "START Streaming"     , "confirm" : "yes", "keycode" : (Keycode.LEFT_CONTROL, Keycode.KEYPAD_ONE)   }, 
+    (1,0): {"color" : (  0,  0,200), "name" : "STOP Streaming"      , "confirm" : "yes", "keycode" : (Keycode.LEFT_CONTROL, Keycode.KEYPAD_TWO)   },
+    (2,0): {"color" : (  0,  0,  0), "name" : "n/a"                 , "confirm" : "no" , "keycode" : (Keycode.LEFT_CONTROL, Keycode.KEYPAD_THREE) },
+    (3,0): {"color" : (  0,  0,  0), "name" : "n/a"                 , "confirm" : "no" , "keycode" : (Keycode.LEFT_CONTROL, Keycode.KEYPAD_FOUR)  },
     
-    (0,1): (Keycode.LEFT_CONTROL, Keycode.KEYPAD_FIVE,),  # 4
-    (1,1): (Keycode.LEFT_CONTROL, Keycode.KEYPAD_SIX,),   # 5
-    (2,1): (Keycode.LEFT_CONTROL, Keycode.KEYPAD_SEVEN,), # 6
-    (3,1): (Keycode.LEFT_CONTROL, Keycode.KEYPAD_EIGHT,), # 7
-    
-    (0,2): (Keycode.LEFT_CONTROL, Keycode.KEYPAD_NINE,),  # 8
-    (1,2): (Keycode.LEFT_CONTROL, Keycode.KEYPAD_ZERO,),  # 9
-    (2,2): (Keycode.LEFT_ALT, Keycode.KEYPAD_ONE,),       # A
-    (3,2): (Keycode.LEFT_ALT, Keycode.KEYPAD_TWO,),       # B
-    
-    (0,3): (Keycode.LEFT_ALT, Keycode.KEYPAD_THREE,),     # C
-    (1,3): (Keycode.LEFT_ALT, Keycode.KEYPAD_FOUR,),      # D
-    (2,3): (Keycode.LEFT_ALT, Keycode.KEYPAD_FIVE,),      # E
-    (3,3): (Keycode.LEFT_ALT, Keycode.KEYPAD_SIX,)        # F
-}
+    (0,1): {"color" : (  0,  0,  0), "name" : "n/a"                 , "confirm" : "no" , "keycode" : (Keycode.LEFT_CONTROL, Keycode.KEYPAD_FIVE)  },
+    (1,1): {"color" : (  0,  0,  0), "name" : "n/a"                 , "confirm" : "no" , "keycode" : (Keycode.LEFT_CONTROL, Keycode.KEYPAD_SIX)   },
+    (2,1): {"color" : (  0,  0,  0), "name" : "n/a"                 , "confirm" : "no" , "keycode" : (Keycode.LEFT_CONTROL, Keycode.KEYPAD_SEVEN) },
+    (3,1): {"color" : (  0,  0,  0), "name" : "n/a"                 , "confirm" : "no" , "keycode" : (Keycode.LEFT_CONTROL, Keycode.KEYPAD_EIGHT) },
 
-KEY_COLOR_MAP = {
-    (0,0): {"color" : (200,0,0), "name" : "START Streaming", "confirm" : "yes"},
-    (1,0): {"color" : (0,0,200), "name" : "STOP Streaming", "confirm" : "yes"},
-    (2,0): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
-    (3,0): {"color" : (0,10,0), "name" : "n/a", "confirm" : "no"},
-    
-    (0,1): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
-    (1,1): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
-    (2,1): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
-    (3,1): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
+    (0,2): {"color" : (  0,200,  0), "name" : "Camera"              , "confirm" : "no" , "keycode" : (Keycode.LEFT_CONTROL, Keycode.KEYPAD_NINE)  },
+    (1,2): {"color" : (  0,  0,  0), "name" : "n/a"                 , "confirm" : "no" , "keycode" : (Keycode.LEFT_CONTROL, Keycode.KEYPAD_ZERO)  },
+    (2,2): {"color" : (  0,  0,  0), "name" : "n/a"                 , "confirm" : "no" , "keycode" : (Keycode.LEFT_ALT,     Keycode.KEYPAD_ONE)   },
+    (3,2): {"color" : (  0,  0,  0), "name" : "n/a"                 , "confirm" : "no" , "keycode" : (Keycode.LEFT_ALT,     Keycode.KEYPAD_TWO)   },
 
-    (0,2): {"color" : (0,200,0), "name" : "Camera", "confirm" : "no"},
-    (1,2): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
-    (2,2): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
-    (3,2): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
-
-    (0,3): {"color" : (245,120,10), "name" : "Screen + Camera Top", "confirm" : "yes"},
-    (1,3): {"color" : (245,120,10), "name" : "Screen + Camera Down", "confirm" : "no"},
-    (2,3): {"color" : (0,0,0), "name" : "n/a", "confirm" : "no"},
-    (3,3): {"color" : (0,100,100), "name" : "Screen Only", "confirm" : "no"}
+    (0,3): {"color" : (245,120, 10), "name" : "Screen + Camera Top" , "confirm" : "yes", "keycode" : (Keycode.LEFT_ALT,     Keycode.KEYPAD_THREE) },
+    (1,3): {"color" : (245,120, 10), "name" : "Screen + Camera Down", "confirm" : "no" , "keycode" : (Keycode.LEFT_ALT,     Keycode.KEYPAD_FOUR)  },
+    (2,3): {"color" : (  0,  0,  0), "name" : "n/a"                 , "confirm" : "no" , "keycode" : (Keycode.LEFT_ALT,     Keycode.KEYPAD_FIVE)  },
+    (3,3): {"color" : (  0,100,100), "name" : "Screen Only"         , "confirm" : "no" , "keycode" : (Keycode.LEFT_ALT,     Keycode.KEYPAD_SIX)   }
 }
 
 
 INVALID_KEY_COLOR = (255, 0, 0)
-DEFAULT_BRIGHTNESS = 0.05
+DEFAULT_BRIGHTNESS = 0.053466
 
 keypad = RGBKeypad()
 kbd = Keyboard(usb_hid.devices)
 
 def resetBrightness():
     for key in keypad.keys:
-        if (key.x, key.y) in KEY_COLOR_MAP.keys():
-            key.color = KEY_COLOR_MAP[(key.x, key.y)]["color"]
+        if (key.x, key.y) in KEYBOARD_MAP.keys():
+            key.color = KEYBOARD_MAP[(key.x, key.y)]["color"]
         key.brightness = DEFAULT_BRIGHTNESS
         
 def dimmBrightness():
@@ -84,9 +69,9 @@ def showMessage(text):
 
 def showConfirmMessage(text):
     global startTime
+    startTime = time.monotonic_ns()
     if(DISABLE_OLED == False):
         oled.setConfirmMmessage(text)
-        startTime = time.monotonic_ns()
     
 def partyNight():
     targetColors = []     # color array
@@ -150,7 +135,7 @@ def gradationAmount(current, tobe):
     
 def confirm(confirmKey, currentKey):
 
-    showConfirmMessage(KEY_COLOR_MAP[confirmKey]["name"])
+    showConfirmMessage(KEYBOARD_MAP[confirmKey]["name"])
     
     # wait for 0.2 sec to avoid mis-click
     time.sleep(0.2)
@@ -177,9 +162,9 @@ def confirm(confirmKey, currentKey):
                 #3resetBrightness();
                 
                 if((key.x, key.y)  == confirmKey):
-                    showMessage(KEY_COLOR_MAP[confirmKey]["name"])
+                    showMessage(KEYBOARD_MAP[confirmKey]["name"])
                     key.brightness = 0.35
-                    kbd.send(*KEYBOARD_MAP[(key.x, key.y)])
+                    kbd.send(*KEYBOARD_MAP[(key.x, key.y)]["keycode"])
                 else:
                     # cancel with any other keys
                     showMessage("Cancelled")
@@ -204,18 +189,19 @@ def main():
                 key.brightness = 0.35
                 
                 if (key.x, key.y) in KEYBOARD_MAP.keys():
-                    if(KEY_COLOR_MAP[(key.x, key.y)]["confirm"] == "yes"):
+                    if(KEYBOARD_MAP[(key.x, key.y)]["confirm"] == "yes"):
                         confirm((key.x, key.y), key)
                         break
                     else:
-                        kbd.send(*KEYBOARD_MAP[(key.x, key.y)])
-                        showMessage(KEY_COLOR_MAP[(key.x, key.y)]["name"])
+                        if(KEYBOARD_MAP[(key.x, key.y)]["name"] == "n/a"):
+                            dimmBrightness()
+                            resetBrightness()
+                            break
 
-                else:
-                    key.color = (255,255,255)
-                    dimmBrightness()
-                    resetBrightness()
-                    break
+                        kbd.send(*KEYBOARD_MAP[(key.x, key.y)]["keycode"])
+                        showMessage(KEYBOARD_MAP[(key.x, key.y)]["name"])
+                        
+
                 
                 while key.is_pressed():
                     pass
@@ -226,6 +212,7 @@ while True:
     except KeyboardInterrupt:
         print("KeyboardInterrupt :)")
         break
-#    except:
-#        # ignore any other errors.
-#        print("An exception occurred")
+    except:
+        # ignore any other errors.
+        print("An exception occurred")
+
