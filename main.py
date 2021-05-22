@@ -43,7 +43,7 @@ KEYBOARD_MAP = {
 
 
 INVALID_KEY_COLOR = (255, 0, 0)
-DEFAULT_BRIGHTNESS = 0.053466
+DEFAULT_BRIGHTNESS = 0.05
 
 keypad = RGBKeypad()
 kbd = Keyboard(usb_hid.devices)
@@ -215,4 +215,3 @@ while True:
     except:
         # ignore any other errors.
         print("An exception occurred")
-
