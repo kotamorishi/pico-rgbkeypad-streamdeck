@@ -5,17 +5,17 @@ import terminalio
 import displayio
 import adafruit_displayio_ssd1306
 from adafruit_display_text import label
-import adafruit_imageload
+#import adafruit_imageload
 import time
 
 # if you wish to use custom fonts...
-from adafruit_bitmap_font import bitmap_font
-font = bitmap_font.load_font("/font.bdf", displayio.Bitmap)
+#from adafruit_bitmap_font import bitmap_font
+#font = bitmap_font.load_font("/font.bdf", displayio.Bitmap)
 
 
 displayio.release_displays()
 
-oled_reset = board.GP15 # what is this?
+oled_reset = board.GP15 # there is no pin for my OLED monitor.
 
 # Use for I2C
 i2c = busio.I2C(board.GP7, board.GP6, frequency=400000)
