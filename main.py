@@ -17,7 +17,7 @@ from random import randint
 import math
 
 
-# set name for "n/a" is not assigned.(trigger the party night)
+# set name for "n/a" is not assigned. trigger for the party night mode ;-)
 # name : display name
 KEYBOARD_MAP = {
     (0,0): {"color" : (200,  0,  0), "name" : "START Streaming"     , "confirm" : "yes", "keycode" : (Keycode.LEFT_CONTROL, Keycode.KEYPAD_ONE)   }, 
