@@ -1,4 +1,4 @@
-# Pico RGB Keypad Stream Deck with OLED
+# Pico RGB Keypad Stream Deck with OLED monitor
 ![lib directory contents](/images/oled_mod.jpg)
 
 # Pico RGB Keypad Stream Deck
