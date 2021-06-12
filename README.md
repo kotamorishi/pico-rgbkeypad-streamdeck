@@ -1,6 +1,11 @@
 # Pico RGB Keypad Stream Deck with OLED monitor
 ![lib directory contents](/images/oled_mod.jpg)
 
+# 3D print
+Case are not nessesary, however it makes nicer :)
+You can feel free to download stl files and print it.
+[https://www.thingiverse.com/thing:4883873](https://www.thingiverse.com/thing:4883873)
+
 # Pico RGB Keypad Stream Deck
 This repository is all based on the incredible work by [Martin O'Hanlon](https://github.com/martinohanlon/pico-rgbkeypad) for controlling the [Pico RGB Keypad](https://shop.pimoroni.com/products/pico-rgb-keypad-base) for the [Raspberry Pi Pico](https://www.raspberrypi.org/documentation/pico/getting-started/)
 
