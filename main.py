@@ -1,3 +1,4 @@
+# Set ture for No-OLED monitor.
 DISABLE_OLED = False
 if(DISABLE_OLED == False):
     try:
