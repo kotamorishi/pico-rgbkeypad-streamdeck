@@ -30,7 +30,7 @@ display = adafruit_displayio_ssd1306.SSD1306(display_bus, width=WIDTH, height=HE
 
 def init():
     # Make the display context
-    splash = displayio.Group(max_size=10)
+    splash = displayio.Group()
     display.show(splash)
     
     color_bitmap = displayio.Bitmap(WIDTH, HEIGHT, 1)
@@ -58,7 +58,7 @@ def init():
     splash.append(text_area)
 
 def sleep():
-    splash = displayio.Group(max_size=10)
+    splash = displayio.Group()
     display.show(splash)
     
     color_bitmap = displayio.Bitmap(WIDTH, HEIGHT, 1)
@@ -68,7 +68,7 @@ def sleep():
     splash.append(bg_sprite)
 
 def setMmessage(text):
-    splash = displayio.Group(max_size=1)
+    splash = displayio.Group()
     display.show(splash)
     text_area = label.Label(
         terminalio.FONT,
@@ -81,7 +81,7 @@ def setMmessage(text):
     splash.append(text_area)
 
 def setConfirmMmessage(text):
-    splash = displayio.Group(max_size=1)
+    splash = displayio.Group()
     display.show(splash)
 
     text_area2 = label.Label(
