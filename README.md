@@ -21,7 +21,7 @@ The guide will talk you through installing the [Pimoroni MicroPython Firmware](h
 ## CircuitPython Firmware
 The above links described the process of installing the MicroPython Firmware however for our example we're going to install the [CircuitPython Firmware](https://circuitpython.org/board/raspberry_pi_pico/) which will replace the currently installed Pimoroni MicroPython Firmware.
 
-1) Download the [latest firmware](https://circuitpython.org/board/raspberry_pi_pico/), at the time of writing this file is `adafruit-circuitpython-raspberry_pi_pico-en_US-6.2.0-beta.2.uf2`
+1) Download the [latest firmware](https://circuitpython.org/board/raspberry_pi_pico/), at the time of writing this file is `adafruit-circuitpython-raspberry_pi_pico-en_US-7.0.0.uf2`
 1) Boot your Raspberry Pico into bootloader mode by holding down the "BOOTSEL" button whilst plugging in the USB cable.
 1) The Pico will boot and display in file explorer on your PC/Laptop.
 1) Copy the downloaded `adafruit-circuitpython-raspberry_pi_pico-en_US-6.2.0-beta.2.uf2` file across to the explorer window.  After a few seconds your Pico will reboot and you'll be running CircuitPython.
