@@ -2,7 +2,7 @@
 ![lib directory contents](/images/oled_mod.jpg)
 
 # 3D print
-Case are not nessesary, however it makes nicer :)
+The case is not nessesary, however it makes nicer :)
 You can feel free to download stl files and print it.
 [https://www.thingiverse.com/thing:4883873](https://www.thingiverse.com/thing:4883873)
 
